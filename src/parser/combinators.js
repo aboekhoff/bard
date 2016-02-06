@@ -43,7 +43,18 @@ export const seq = (ps) => desc(
   }
 )
 
-export const or = (ps) => desc(
+export const eof = (st) => {
+  const input = st.get('input')
+  const offset = st.get('offset')
+
+  return offset < input.length ?
+    fail('eof')(st) :
+    succ(true)(st)
+}
+
+export const and = (...ps) => desc(`and(${ps.map(show).join(" ")})`, seq(ps))
+
+export const or = (...ps) => desc(
   `or(${ps.map(show).join(" ")})`,
   s0 => {
     const errs = []
@@ -71,7 +82,11 @@ export const unless = notP => p => desc(`unless(${show(notP)} ${show(p)})`, st =
   return ok ? fail(`expected not ${p}`)(st) : p(st)
 })
 
-export const anyOf = strs => or(strs.map(lit))
+export const anyOf = strs => or(...strs.map(lit))
+
+export const anyBut = strs => desc(
+  `anyBut(${strs.map(JSON.stringify).join(" ")})`,
+  unless(anyOf(strs))(token))
 
 export const many = p => desc(`many(${show(p)})`, st => {
   const vals = []
@@ -92,6 +107,12 @@ export const many1 = p => desc(`many1(${show(p)})`, st => {
   const res = many(p)(st)
   const [ok, vals, _st] = res
   return vals.length > 0 ? res : fail(`expected at least one ${show(p)}`)(st)
+})
+
+export const maybe = p => desc(`maybe(${show(p)})`, st => {
+  const res = p(st)
+  const [ok, val, _st] = res
+  return ok ? [true, [val], _st] : [true, null, st]
 })
 
 // utils

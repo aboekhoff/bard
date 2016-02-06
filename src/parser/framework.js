@@ -29,7 +29,7 @@ export const run = (parser, state) => toParser(parser)(state)
 
 export const define = (...defs) => {
   const cacheFunction = (parser, name=parser.name) => {
-    parsers[parser.name] = parser
+    parsers[name] = parser
   }
 
   const cacheObject = (obj) => {

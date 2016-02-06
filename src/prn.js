@@ -7,7 +7,7 @@ var Symbol = require('./symbol')
 var utils = require('./utils')
 var extend = utils.extend
 
-module.exports = function prn(x) {
+export default function prn(x) {
   if (x == null) {
     return "#nil"
   }
@@ -61,8 +61,12 @@ extend(List.prototype, {
   }
 })
 
-extend(Map.prototype), {
+extend(Map.prototype, {
   prn: function() {
-    return "{...}"
+    const res = []
+    this.entrySeq().forEach(function(pair) {
+      res.push(prn(pair[0]) + " " + prn(pair[1]))
+    })
+    return "{" + res.join(", ") + "}"
   }
-}
+})
